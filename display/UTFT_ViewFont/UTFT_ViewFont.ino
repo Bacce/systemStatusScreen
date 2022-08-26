@@ -9,11 +9,13 @@ String output[10];
 void setup(){
   Serial.begin(9600);
   myGLCD.InitLCD();
+  //myGLCD.setContrast(2); //0-64
+  myGLCD.setBrightness(2); //0-16
   myGLCD.clrScr();
   myGLCD.setColor(250,250,250);
   myGLCD.setBackColor(0, 0, 0);
   myGLCD.setFont(Ubuntu);
-  myGLCD.print("Waiting for input...", LEFT, LINE*0);
+  myGLCD.print("Initializing...", LEFT, LINE*0);
 }
 
 void writeScreen(){

@@ -7,12 +7,24 @@ const serialPort = new SerialPort({path:"/dev/ttyACM0", baudRate: 9600});
 let ipAddr= "0.0.0.0";
 let cpuTemp = "0 C";
 let time = "00:00";
+let memory = "0 Mb / 0 Mb";
+let system = "";
+let cpu = "";
+let os = "";
+
+const padTo2Digits = (num) => {
+  return num.toString().padStart(2, '0');
+}
 
 serialPort.on("open", () => {
   console.log("Serial is ready, wait 2 sec for initialization...");
 
   const getData = async () => {
-    time = new Date(si.time().current).toLocaleTimeString();
+    const date = new Date(si.time().current);
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+
+    time = `${padTo2Digits(hours)}:${padTo2Digits(minutes)}`;
 
     cpuTemp = await si.cpuTemperature();
     cpuTemp = cpuTemp.main + " C";
@@ -20,18 +32,31 @@ serialPort.on("open", () => {
     ipAddr = await si.networkInterfaces();
     ipAddr = ipAddr[1].ip4;
 
-    console.log("data received", time, cpuTemp, ipAddr);
+    memory = await si.mem();
+    memory = `${(memory.free/1000000000).toFixed(1)}/${(memory.total/1000000000).toFixed(1)} GB`;
+
+    system = await si.system();
+    system = `${system.version}`; //${system.manufacturer}
+
+    cpu = await si.cpu();
+    cpu = `${cpu.speed}/${cpu.speedMax} Ghz`;
+
+    os = await si.osInfo();
+    console.log(os);
+    os = `${os.distro} ${os.release}`;
+
+    console.log("data received", time, cpuTemp, ipAddr, memory, system, cpu, os);
   }
-  
+
   const updateData = () => {
-    serialPort.write(`Time: ${time};IP: ${ipAddr};CPU Temp: ${cpuTemp};\n`);
+    serialPort.write(`IP: ${ipAddr};;OS: ${os};SYS: ${system};TME: ${time};CPU: ${cpu};MEM: ${memory};TMP: ${cpuTemp};\n`);
   }
 
   setInterval(async() => {
     await getData();
     console.log("Sending data update.");
     updateData();
-  }, 10000);
+  }, 60000); // Update every minute
 
   setTimeout(async()=>{
     await getData();
