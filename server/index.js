@@ -11,6 +11,7 @@ let memory = "0 Mb / 0 Mb";
 let system = "";
 let cpu = "";
 let os = "";
+let drive = "";
 
 const padTo2Digits = (num) => {
   return num.toString().padStart(2, '0');
@@ -42,14 +43,16 @@ serialPort.on("open", () => {
     cpu = `${cpu.speed}/${cpu.speedMax} Ghz`;
 
     os = await si.osInfo();
-    console.log(os);
     os = `${os.distro} ${os.release}`;
+
+    drive = await si.fsSize();
+    drive = `${(drive[0].used/1000000000).toFixed(1)}/${(drive[0].size/1000000000).toFixed(1)} GB`;
 
     console.log("data received", time, cpuTemp, ipAddr, memory, system, cpu, os);
   }
 
   const updateData = () => {
-    serialPort.write(`IP:${ipAddr};;OS:${os};SYS:${system};TME:${time};CPU:${cpu};MEM:${memory};TMP:${cpuTemp};\n`);
+    serialPort.write(`IP:${ipAddr};;OS:${os};SYS:${system};CPU:${cpu};MEM:${memory};DRV:${drive};TMP:${cpuTemp};;TME:${time};\n`);
   }
 
   setInterval(async() => {
