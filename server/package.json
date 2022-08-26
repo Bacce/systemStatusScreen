@@ -1,0 +1,11 @@
+{
+  "name": "serialDisplay",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "serialport": "^10.4.0",
+    "systeminformation": "^5.12.6"
+  }
+}
