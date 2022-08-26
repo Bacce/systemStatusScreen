@@ -33,7 +33,7 @@ serialPort.on("open", () => {
     ipAddr = ipAddr[1].ip4;
 
     memory = await si.mem();
-    memory = `${(memory.free/1000000000).toFixed(1)}/${(memory.total/1000000000).toFixed(1)} GB`;
+    memory = `${(memory.used/1000000000).toFixed(1)}/${(memory.total/1000000000).toFixed(1)} GB`;
 
     system = await si.system();
     system = `${system.version}`; //${system.manufacturer}
@@ -49,7 +49,7 @@ serialPort.on("open", () => {
   }
 
   const updateData = () => {
-    serialPort.write(`IP: ${ipAddr};;OS: ${os};SYS: ${system};TME: ${time};CPU: ${cpu};MEM: ${memory};TMP: ${cpuTemp};\n`);
+    serialPort.write(`IP:${ipAddr};;OS:${os};SYS:${system};TME:${time};CPU:${cpu};MEM:${memory};TMP:${cpuTemp};\n`);
   }
 
   setInterval(async() => {
