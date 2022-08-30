@@ -2,6 +2,10 @@
 
 I had this arduino display laying on my desk for a while now, so I decided to make it useful and turn it into a display to show my home lab servers status, ip address, temp, etc.
 
+Article about it on medium (Hungarian)
+
+https://medium.com/@makosbab/szerver-kijelz%C5%91vel-h%C3%A1zilag-db08db5424c3
+
 It is fairly simple, the display shows whatever it receives through serial, and the server is checks every 10s whats up and sends it to the display.
 
 folders:
