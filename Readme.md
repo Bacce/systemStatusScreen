@@ -6,7 +6,7 @@ Article about it on medium (Hungarian)
 
 https://medium.com/@makosbab/szerver-kijelz%C5%91vel-h%C3%A1zilag-db08db5424c3
 
-It is fairly simple, the display shows whatever it receives through serial, and the server is checks every 10s whats up and sends it to the display.
+It is fairly simple, the display shows whatever it receives through serial, and the server checks every 60s whats up and sends it to the display.
 
 folders:
 
