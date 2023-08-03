@@ -29,12 +29,18 @@ serialPort.on("open", () => {
 
     cpuTemp = await si.cpuTemperature();
     cpuTemp = cpuTemp.main + " C";
-    
+
     ipAddr = await si.networkInterfaces();
     ipAddr = ipAddr[1].ip4;
 
     memory = await si.mem();
-    memory = `${(memory.used/1000000000).toFixed(1)}/${(memory.total/1000000000).toFixed(1)} GB`;
+	let memPercent = (memory.total/100);
+	let usedPercent = memory.used/memPercent;
+	let memFree = ((memory.total - memory.used)/1000000000).toFixed(1); //Gb
+        let freePercent = (100-usedPercent).toFixed(1);
+
+    memory = `${memFree}Gb ${freePercent}% free`;
+   // memory = `${(memory.used/1000000000).toFixed(1)}/${(memory.total/1000000000).toFixed(1)} GB`;
 
     system = await si.system();
     system = `${system.manufacturer} ${system.version}`;
@@ -46,13 +52,17 @@ serialPort.on("open", () => {
     os = `${os.distro} ${os.release}`;
 
     drive = await si.fsSize();
-    drive = `${(drive[0].used/1000000000).toFixed(1)}/${(drive[0].size/1000000000).toFixed(1)} GB`;
+    let drivePercent = drive[0].size/100;
+    let driveUsedPercent = (100-(drive[0].used/drivePercent)).toFixed(1);
+    let driveFreeSize = ((drive[0].size - drive[0].used)/1000000000).toFixed(1); //GB
+    drive = `${driveFreeSize}Gb ${driveUsedPercent}% free`;
+//    drive = `${(drive[0].used/1000000000).toFixed(1)}/${(drive[0].size/1000000000).toFixed(1)} GB`;
 
     console.log("data received", time, cpuTemp, ipAddr, memory, system, cpu, os);
   }
 
   const updateData = () => {
-    serialPort.write(`%2;%1SYS: ${system};%1OS:  ${os};%1;%0IP: ${ipAddr};%0;%0CPU: ${cpu};%0MEM: ${memory};%0DRV: ${drive};%0TMP: ${cpuTemp};%0;%0TIME: ${time};\n`);
+    serialPort.write(`%2;%1SYS:${system};%1OS: ${os};%1;%0IP: ${ipAddr};%1;%1Drive;%0${drive};%1;%1Memory;%0${memory};%1;%1CPU: ${cpu};%0;%0TMP:${cpuTemp} TIME:${time};\n`);
   }
 
   setInterval(async() => {
@@ -66,4 +76,14 @@ serialPort.on("open", () => {
     console.log("Sending data first.");
     updateData();
   }, 2000);
+});
+
+process.on('SIGINT', () => {
+    serialPort.write(`%0Server stoped.;\n`);
+    process.exit();
+});
+
+process.on('exit', () => {
+    serialPort.write(`%0Shutting down...;\n`);
+    process.exit();
 });
