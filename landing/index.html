@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Homelab landing page</title>
+    <style>
+#container {
+            display: flex;
+        }
+
+        .title {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .status {
+            font-weight: normal;
+            font-size: 12px;
+        }
+
+        .cover {
+            width: 100px;
+            margin-right: 10px;
+        }
+    </style>
+  </head>
+  <body>
+        <div id="container"></div>
+    <hr/>
+
+    <h1><a href="http://192.168.100.29:32400/web/index.html">Plex</a></h1>
+    <h1><a href="https://192.168.100.29:9090/">Cockpit</a></h1>
+    <h2><a href="http://192.168.100.29:12345/">Shutdown</a></h2>
+
+    <script>
+        const target = document.getElementById('container');
+        fetch("http://192.168.100.29:32400/status/sessions?X-Plex-Token=xVQw-6q7uAeh386UYxg7",{headers:{"accept":"application/json"}})
+            .then(response => response.json())
+            .then((data)=>{
+                if(data.MediaContainer.size>0) {
+                    const meta = data.MediaContainer.Metadata[0];
+                    //TODO: If movie vs series
+                    if(meta.type==="movie") {
+target.innerHTML = `<img class="cover" src="http://192.168.100.29:32400${meta.thumb}"/><p class="title">${meta.title} <span class="status">(${meta.Player.state})</span></p>`;
+                    }
+                    else if(meta.type==="episode") {
+target.innerHTML = `<img class="cover" src="http://192.168.100.29:32400${meta.parentThumb}"/><p class="title">${meta.grandparentTitle} <span class="status">(${meta.Player.state})</span><br/>${meta.parentTitle}<br/>${meta.title}</p>`;
+                    }
+                }
+                else {
+                    target.innerHTML = "Nothing is playing right now.";
+                }
+            });
+    </script>
+  </body>
+</html>

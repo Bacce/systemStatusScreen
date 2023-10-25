@@ -4,7 +4,7 @@ Description=Status Screen Server
 [Service]
 ExecStart=/var/www/myapp/index.js
 Restart=always
-User=nobody
+User=root
 # Note Debian/Ubuntu uses 'nogroup', RHEL/Fedora uses 'nobody'
 Group=nogroup
 Environment=PATH=/usr/bin:/usr/local/bin
