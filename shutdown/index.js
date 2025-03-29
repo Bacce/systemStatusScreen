@@ -9,10 +9,10 @@ function execute(command, callback) {
 
 http.createServer(function (req, res) {
   if(req) {
-    execute('/sbin/shutdown now', function(callback) {
       res.write("bye.");
       res.end();
-    });
+
+    execute('/sbin/shutdown now', function(callback) {});
   }
 	console.log("shutdown server initialized");
 }).listen(12345);

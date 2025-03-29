@@ -39,7 +39,7 @@ serialPort.on("open", () => {
 	let memFree = ((memory.total - memory.used)/1000000000).toFixed(1); //Gb
         let freePercent = (100-usedPercent).toFixed(1);
 
-    memory = `${memFree}Gb ${freePercent}% free`;
+    memory = `${freePercent}% free (${memFree}Gb)`;
    // memory = `${(memory.used/1000000000).toFixed(1)}/${(memory.total/1000000000).toFixed(1)} GB`;
 
     system = await si.system();
@@ -55,7 +55,8 @@ serialPort.on("open", () => {
     let drivePercent = drive[0].size/100;
     let driveUsedPercent = (100-(drive[0].used/drivePercent)).toFixed(1);
     let driveFreeSize = ((drive[0].size - drive[0].used)/1000000000).toFixed(1); //GB
-    drive = `${driveFreeSize}Gb ${driveUsedPercent}% free`;
+    drive = `${driveUsedPercent}% free (${driveFreeSize}Gb)`;
+
 //    drive = `${(drive[0].used/1000000000).toFixed(1)}/${(drive[0].size/1000000000).toFixed(1)} GB`;
 
     console.log("data received", time, cpuTemp, ipAddr, memory, system, cpu, os);
