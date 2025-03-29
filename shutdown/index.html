@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shutdown Animation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background-color: black;
+            color: #00ff00;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.2rem;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            flex-direction: column;
+            padding-top: 0px;
+        }
+        .terminal {
+            width: 100vw;
+            height: 100vh;
+            background-color: rgb(12, 48, 5);
+            padding: 20px;
+            white-space: pre-line;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: flex-start;
+            animation: collapseScreen .9s ease-in-out 5s forwards;
+        }
+        @keyframes collapseScreen {
+            0% { transform: scaleY(1); opacity: 1; background: black; }
+            50% { transform: scaleY(0.02); opacity: 1; background: white; }
+            100% { transform: scaleY(0.02) scaleX(0); opacity: 0; background: white; }
+        }
+    </style>
+</head>
+<body>
+    <div class="terminal" id="terminal"></div>
+    <script>
+        const terminal = document.getElementById("terminal");
+        const funMessages = [
+            "Terminating user sessions...",
+            "Stopping background daemons...",
+            "Flushing disk buffers...",
+            "Stopping server...",
+            "Closing secure connections...",
+            "Killing orphaned processes...",
+            "Deallocating memory...",
+            "Powering down CPU cores...",
+            "Unmounting filesystems...",
+            "Hibernating kernel modules...",
+            "Stopping network interfaces...",
+            "Finalizing power sequence...",
+            "Shutting down system...",
+        ];
+        const fiveRandom = funMessages.sort(() => Math.random() - 0.5).slice(0, 5);
+
+        const steps = [
+            "#### HOMELAB SHUTDOWN SEQUENCE ####",
+            "  ",
+            ...fiveRandom,
+            "  ",
+            "Bye"
+        ];
+
+        let i = 0;
+        function showSteps() {
+            if (i < steps.length) {
+                if(i === steps.length-1 || i === steps.length-2 || i === 0 || i === 1){
+                    terminal.innerHTML += `<span>${steps[i]}</span>\n`;
+                }
+                else {
+                    terminal.innerHTML += `<div><span style='color: #00ff00; display:inline-block; width: 380px;'>${steps[i]}</span><span>[OK]</span></div>\n`;
+                }
+                i++;
+                setTimeout(showSteps, 500);
+            }
+        }
+        setTimeout(showSteps, 500);
+    </script>
+</body>
+</html>
