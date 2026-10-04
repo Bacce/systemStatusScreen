@@ -8,7 +8,7 @@ const port = 8080;
 
 async function getStatus() {
     const DAY_INTERVAL = 60000;
-    const NIGHT_INTERVAL = 300000;
+    const NIGHT_INTERVAL = 1800000;
 
     try {
         const timeData = await si.time();
