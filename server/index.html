@@ -238,23 +238,26 @@
                                 }
                             }
 
+                            setTimeout(updateScreen, data.updateInterval || 60000);
                         } catch (e) {
                             console.error('Error parsing JSON:', e);
                             document.getElementById("error-message").style.display = "block";
+                            setTimeout(updateScreen, 60000);
                         }
                     } else {
                         document.getElementById("error-message").style.display = "block";
+                        setTimeout(updateScreen, 60000);
                     }
                 }
             };
             xhr.onerror = function () {
                 document.getElementById("error-message").style.display = "block";
+                setTimeout(updateScreen, 60000);
             };
             xhr.send();
         }
 
         updateScreen();
-        setInterval(updateScreen, 60000);
     </script>
 </body>
 

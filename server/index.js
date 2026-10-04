@@ -7,9 +7,14 @@ const app = express();
 const port = 8080;
 
 async function getStatus() {
+    const DAY_INTERVAL = 60000;
+    const NIGHT_INTERVAL = 300000;
+
     try {
         const timeData = await si.time();
         const date = new Date(timeData.current);
+        const hour = date.getHours();
+        const updateInterval = (hour >= 22 || hour < 6) ? NIGHT_INTERVAL : DAY_INTERVAL;
 
         const network = await si.networkInterfaces();
         const ip = network.find(iface => iface.ip4 && iface.ip4 !== '127.0.0.1')?.ip4 || '0.0.0.0';
@@ -36,7 +41,8 @@ async function getStatus() {
             cpu,
             ram,
             disk,
-            uptime
+            uptime,
+            updateInterval
         };
     } catch (error) {
         console.error("Error fetching system status:", error);
@@ -46,7 +52,8 @@ async function getStatus() {
             cpu: 'Error',
             ram: 'Error',
             disk: 'Error',
-            uptime: 'Error'
+            uptime: 'Error',
+            updateInterval: DAY_INTERVAL
         };
     }
 }
