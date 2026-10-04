@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Homelab Status</title>
+
+    <style type="text/css">
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 800px;
+            height: 600px;
+            overflow: hidden;
+        }
+
+        body {
+            background-color: #ffffff;
+            font-family: Arial, Helvetica, sans-serif;
+            position: relative;
+        }
+
+        .grid-line-v {
+            position: absolute;
+            width: 1px;
+            height: 600px;
+            background-color: #000000;
+            top: 0;
+        }
+
+        .grid-line-h {
+            position: absolute;
+            width: 800px;
+            height: 1px;
+            background-color: #000000;
+            left: 0;
+        }
+
+        #time {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 72px;
+            font-weight: bold;
+            text-align: right;
+        }
+
+        #stats {
+            position: absolute;
+            top: 120px;
+            left: 15px;
+            width: 380px;
+        }
+
+        .stat-item {
+            margin-bottom: 15px;
+            font-family: "Courier New", Courier, monospace;
+            font-size: 32px;
+            font-weight: bold;
+        }
+        #error-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 48px;
+            font-weight: bold;
+            color: #000000;
+            text-align: center;
+            display: none;
+            z-index: 100;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="grid-line-v" style="left: 400px;"></div>
+    <div class="grid-line-h" style="top: 100px;"></div>
+    <div class="grid-line-h" style="top: 580px;"></div>
+
+    <div id="time">00:00:00</div>
+
+    <div id="stats">
+        <div class="stat-item">IP: <span id="stat-ip">...</span></div>
+        <div class="stat-item">CPU: <span id="stat-cpu">...</span></div>
+        <div class="stat-item">RAM: <span id="stat-ram">...</span></div>
+        <div class="stat-item">Disk: <span id="stat-disk">...</span></div>
+        <div class="stat-item">Uptime: <span id="stat-uptime">...</span></div>
+    </div>
+    <div id="error-message">SERVER CONNECTION ERROR</div>
+
+    <script type="text/javascript">
+        function updateScreen() {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '/api/status', true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        try {
+                            var data = JSON.parse(xhr.responseText);
+                            document.getElementById("time").innerHTML = data.time;
+                            document.getElementById("stat-ip").innerHTML = data.ip;
+                            document.getElementById("stat-cpu").innerHTML = data.cpu;
+                            document.getElementById("stat-ram").innerHTML = data.ram;
+                            document.getElementById("stat-disk").innerHTML = data.disk;
+                            document.getElementById("stat-uptime").innerHTML = data.uptime;
+                            document.getElementById("error-message").style.display = "none";
+                        } catch (e) {
+                            console.error('Error parsing JSON:', e);
+                            document.getElementById("error-message").style.display = "block";
+                        }
+                    } else {
+                        document.getElementById("error-message").style.display = "block";
+                    }
+                }
+            };
+            xhr.onerror = function () {
+                document.getElementById("error-message").style.display = "block";
+            };
+            xhr.send();
+        }
+
+        updateScreen();
+        setInterval(updateScreen, 10000);
+    </script>
+
+</body>
+
+</html>

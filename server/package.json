@@ -3,9 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
-  "type": "module",
   "dependencies": {
-    "serialport": "^10.4.0",
+    "express": "^5.2.1",
     "systeminformation": "^5.12.6"
   }
 }
