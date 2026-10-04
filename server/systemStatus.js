@@ -27,7 +27,7 @@ async function getStatus() {
         const uptime = `${days}d ${hours}h ${minutes}m`;
         
         return {
-            time: date.toLocaleTimeString('en-GB'),
+            time: date.getHours().toString().padStart(2, '0') + ':' + date.getMinutes().toString().padStart(2, '0'),
             ip,
             cpu,
             ram,
@@ -37,7 +37,7 @@ async function getStatus() {
     } catch (error) {
         console.error("Error fetching system status:", error);
         return {
-            time: new Date().toLocaleTimeString('en-GB'),
+            time: new Date().getHours().toString().padStart(2, '0') + ':' + new Date().getMinutes().toString().padStart(2, '0'),
             ip: 'Error',
             cpu: 'Error',
             ram: 'Error',
