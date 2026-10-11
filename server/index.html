@@ -88,7 +88,7 @@
         }
 
         .bar-fill {
-            height: 16px;
+            height: 100%;
             background: #000;
             width: 0%;
         }
@@ -132,6 +132,13 @@
             padding: 20px;
             border: 5px solid #000;
         }
+.status-image {
+    width: 384px;
+    height: 272px;
+    margin: 15px -9px 10px -9px;
+    display: none;
+    object-fit: contain;
+}
     </style>
 </head>
 
@@ -150,9 +157,11 @@
 
         <!-- Metrics Row 1 -->
         <tr>
-            <td class="cell-metric">
+            <td class="cell-metric" rowspan="3" style="text-align: center;">
                 <div class="label">IP Address</div>
                 <div class="value" id="stat-ip">...</div>
+                <img id="status-image" src="" class="status-image" alt="Status Image" style="display: none;">
+                <div class="value" id="stat-uptime" style="font-size: 24px;">...</div>
             </td>
             <td class="cell-metric">
                 <div class="label">CPU</div>
@@ -172,6 +181,10 @@
                     <div class="bar-fill" id="bar-ram"></div>
                 </div>
             </td>
+        </tr>
+
+        <!-- Metrics Row 3 -->
+        <tr>
             <td class="cell-metric">
                 <div class="label">DISK</div>
                 <div class="value" id="stat-disk">...</div>
@@ -180,21 +193,23 @@
                 </div>
             </td>
         </tr>
-
-        <!-- Footer Row -->
-        <tr style="height: 80px;">
-            <td colspan="2" class="cell-footer">
-                <div class="footer-content">
-                    <div class="footer-label">UPTIME</div>
-                    <div class="uptime" id="stat-uptime">...</div>
-                </div>
-            </td>
-        </tr>
     </table>
 
     <div id="error-message">SERVER CONNECTION ERROR</div>
 
+
     <script type="text/javascript">
+        function updateImage() {
+            fetch('/api/random-image')
+                .then(response => response.json())
+                .then(data => {
+                    const img = document.getElementById('status-image');
+                    img.src = `/images/${data.filename}`;
+                    img.onload = () => img.style.display = 'block';
+                })
+                .catch(err => console.error('Error loading random image:', err));
+        }
+
         function updateScreen() {
             var xhr = new XMLHttpRequest();
             xhr.open('GET', '/api/status', true);
@@ -238,6 +253,7 @@
                                 }
                             }
 
+                            updateImage();
                             setTimeout(updateScreen, data.updateInterval || 60000);
                         } catch (e) {
                             console.error('Error parsing JSON:', e);
@@ -258,6 +274,7 @@
         }
 
         updateScreen();
+
     </script>
 </body>
 

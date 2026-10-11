@@ -63,6 +63,25 @@ app.get('/api/status', async (req, res) => {
     res.json(status);
 });
 
+app.use('/images', express.static(path.join(__dirname, 'images')));
+const fs = require('fs');
+
+app.get('/api/random-image', (req, res) => {
+    const imagesDir = path.join(__dirname, 'images');
+    fs.readdir(imagesDir, (err, files) => {
+        if (err || !files || files.length === 0) {
+            return res.status(404).send('No images found');
+        }
+        const images = files.filter(file => /\.(jpg|jpeg|png|gif|webp)$/i.test(file));
+        if (images.length === 0) {
+            return res.status(404).send('No images found');
+        }
+        const randomImage = images[Math.floor(Math.random() * images.length)];
+        res.json({ filename: randomImage });
+    });
+});
+
+
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
