@@ -200,14 +200,23 @@
 
     <script type="text/javascript">
         function updateImage() {
-            fetch('/api/random-image')
-                .then(response => response.json())
-                .then(data => {
-                    const img = document.getElementById('status-image');
-                    img.src = `/images/${data.filename}`;
-                    img.onload = () => img.style.display = 'block';
-                })
-                .catch(err => console.error('Error loading random image:', err));
+            var xhrImg = new XMLHttpRequest();
+            xhrImg.open('GET', '/api/random-image', true);
+            xhrImg.onreadystatechange = function () {
+                if (xhrImg.readyState === 4 && xhrImg.status === 200) {
+                    try {
+                        var data = JSON.parse(xhrImg.responseText);
+                        var img = document.getElementById('status-image');
+                        img.src = '/images/' + data.filename;
+                        img.onload = function () {
+                            img.style.display = 'block';
+                        };
+                    } catch (e) {
+                        console.error('Error loading random image:', e);
+                    }
+                }
+            };
+            xhrImg.send();
         }
 
         function updateScreen() {
