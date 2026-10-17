@@ -132,13 +132,6 @@
             padding: 20px;
             border: 5px solid #000;
         }
-.status-image {
-    width: 384px;
-    height: 272px;
-    margin: 15px -9px 10px -9px;
-    display: none;
-    object-fit: contain;
-}
     </style>
 </head>
 
@@ -157,11 +150,18 @@
 
         <!-- Metrics Row 1 -->
         <tr>
-            <td class="cell-metric" rowspan="3" style="text-align: center;">
-                <div class="label">IP Address</div>
-                <div class="value" id="stat-ip">...</div>
-                <img id="status-image" src="" class="status-image" alt="Status Image" style="display: none;">
-                <div class="value" id="stat-uptime" style="font-size: 24px;">...</div>
+            <td class="cell-metric" rowspan="3" style="text-align: center; vertical-align: top;">
+                <div
+                    style="display: flex; flex-direction: column; justify-content: space-between; height: 100%; min-height: 300px;">
+                    <div>
+                        <div class="label">IP Address</div>
+                        <div class="value" id="stat-ip">...</div>
+                        <div class="label" style="margin-top: 90px;">Weather</div>
+                        <div class="value" id="stat-temp" style="font-size: 64px;">...</div>
+                        <div class="value" id="stat-cond" style="font-size: 24px;">...</div>
+                    </div>
+                    <div class="value" id="stat-uptime" style="font-size: 24px;">...</div>
+                </div>
             </td>
             <td class="cell-metric">
                 <div class="label">CPU</div>
@@ -199,26 +199,6 @@
 
 
     <script type="text/javascript">
-        function updateImage() {
-            var xhrImg = new XMLHttpRequest();
-            xhrImg.open('GET', '/api/random-image', true);
-            xhrImg.onreadystatechange = function () {
-                if (xhrImg.readyState === 4 && xhrImg.status === 200) {
-                    try {
-                        var data = JSON.parse(xhrImg.responseText);
-                        var img = document.getElementById('status-image');
-                        img.src = '/images/' + data.filename;
-                        img.onload = function () {
-                            img.style.display = 'block';
-                        };
-                    } catch (e) {
-                        console.error('Error loading random image:', e);
-                    }
-                }
-            };
-            xhrImg.send();
-        }
-
         function updateScreen() {
             var xhr = new XMLHttpRequest();
             xhr.open('GET', '/api/status', true);
@@ -237,6 +217,8 @@
                             document.getElementById("stat-ram").innerHTML = data.ram;
                             document.getElementById("stat-disk").innerHTML = data.disk;
                             document.getElementById("stat-uptime").innerHTML = data.uptime;
+                            document.getElementById("stat-temp").innerHTML = data.weather.temperature;
+                            document.getElementById("stat-cond").innerHTML = data.weather.condition;
                             document.getElementById("error-message").style.display = "none";
 
                             var cpuVal = parseInt(data.cpu);
@@ -262,7 +244,6 @@
                                 }
                             }
 
-                            updateImage();
                             setTimeout(updateScreen, data.updateInterval || 60000);
                         } catch (e) {
                             console.error('Error parsing JSON:', e);
