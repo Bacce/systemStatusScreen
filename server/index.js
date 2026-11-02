@@ -1,4 +1,7 @@
 #!/usr/bin/env node
+require('dotenv').config();
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
 
 const si = require('systeminformation');
 const express = require('express');
@@ -54,6 +57,85 @@ async function getWeather() {
     }
 }
 
+function formatProxmoxStats(input) {
+    const node = Array.isArray(input.data) ? input.data[0] : input;
+
+    if (!node) {
+        throw new Error("No Proxmox node data provided");
+    }
+
+    const toGB = (bytes) => {
+        return Number((bytes / (1024 ** 3)).toFixed(2));
+    };
+
+    const toPercentage = (used, total) => {
+        if (!total) return 0;
+        return Number(((used / total) * 100).toFixed(2));
+    };
+
+    return {
+        node: node.node,
+        storage: {
+            total: toGB(node.maxdisk),
+            used: toGB(node.disk),
+            free: toGB(node.maxdisk - node.disk),
+            usagePercentage: toPercentage(node.disk, node.maxdisk)
+        },
+        cpu: {
+            cores: node.maxcpu,
+            usagePercentage: Number((node.cpu * 100).toFixed(2))
+        },
+        memory: {
+            total: toGB(node.maxmem),
+            used: toGB(node.mem),
+            free: toGB(node.maxmem - node.mem),
+            usagePercentage: toPercentage(node.mem, node.maxmem)
+        },
+        uptime: node.uptime,
+        status: node.status
+    };
+}
+
+async function getProxmoxStatus() {
+    const PROXMOX_URL = 'https://192.168.68.55:8006/api2/json/nodes';
+    const PROXMOX_HOST = new URL(PROXMOX_URL).host;
+    const PROXMOX_TOKEN = process.env.PROXMOX_TOKEN;
+
+    if (!PROXMOX_TOKEN) {
+        console.warn("PROXMOX_TOKEN not set, skipping Proxmox stats");
+        return { cpu: 'N/A', ram: 'N/A', disk: 'N/A', cpuPercent: 0, ramPercent: 0, diskPercent: 0, ip: PROXMOX_HOST };
+    }
+
+    try {
+        const response = await fetch(PROXMOX_URL, {
+            headers: {
+                'Authorization': `PVEAPIToken=${PROXMOX_TOKEN}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Proxmox API error: ${response.status}`);
+        }
+
+        const json = await response.json();
+        const stats = formatProxmoxStats(json);
+        console.log(stats);
+
+        return {
+            cpu: `${stats.cpu.usagePercentage}%`,
+            cpuPercent: stats.cpu.usagePercentage,
+            ram: `${stats.memory.used} GB / ${stats.memory.total} GB`,
+            ramPercent: stats.memory.usagePercentage,
+            disk: `${stats.storage.used} GB / ${stats.storage.total} GB`,
+            diskPercent: stats.storage.usagePercentage,
+            ip: PROXMOX_HOST
+        };
+    } catch (error) {
+        console.error("Error fetching Proxmox status:", error);
+        return { cpu: 'Error', ram: 'Error', disk: 'Error', cpuPercent: 0, ramPercent: 0, diskPercent: 0, ip: PROXMOX_HOST };
+    }
+}
+
 async function getStatus() {
     const DAY_INTERVAL = 60000;
     const NIGHT_INTERVAL = 1800000;
@@ -71,10 +153,11 @@ async function getStatus() {
         const cpu = `${Math.round(load.currentLoad)}%`;
 
         const mem = await si.mem();
+        const ramPercent = Math.round((mem.used / mem.total) * 100);
         const ram = `${(mem.used / 1024 ** 3).toFixed(1)} GB / ${(mem.total / 1024 ** 3).toFixed(1)} GB`;
-
         const fs = await si.fsSize();
         const diskData = fs[0];
+        const diskPercent = Math.round((diskData.used / diskData.size) * 100);
         const disk = `${(diskData.used / 1024 ** 3).toFixed(0)}GB / ${(diskData.size / 1024 ** 3).toFixed(0)}GB`;
 
         const uptimeSeconds = timeData.uptime;
@@ -84,15 +167,26 @@ async function getStatus() {
         const uptime = `${days}d ${hours}h ${minutes}m`;
 
         const weather = await getWeather();
+        const pve = await getProxmoxStatus();
         return {
             time: date.toLocaleTimeString('en-GB'),
             ip,
             cpu,
+            cpuPercent: parseInt(cpu),
             ram,
+            ramPercent,
             disk,
+            diskPercent,
             uptime,
             weather,
-            updateInterval
+            updateInterval,
+            pveIp: pve.ip,
+            pveCpu: pve.cpu,
+            pveCpuPercent: pve.cpuPercent,
+            pveRam: pve.ram,
+            pveRamPercent: pve.ramPercent,
+            pveDisk: pve.disk,
+            pveDiskPercent: pve.diskPercent,
         };
     } catch (error) {
         console.error("Error fetching system status:", error);
@@ -102,6 +196,9 @@ async function getStatus() {
             cpu: 'Error',
             ram: 'Error',
             disk: 'Error',
+            pveCpu: 'Error',
+            pveRam: 'Error',
+            pveDisk: 'Error',
             uptime: 'Error',
             weather: { temperature: 'Error', condition: 'Error' },
             updateInterval: DAY_INTERVAL

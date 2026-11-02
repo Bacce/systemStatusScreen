@@ -27,6 +27,7 @@
         <tr>
             <td class="cell-metric" style="width: 300px;">
                 <div class="metric-group">
+                        <div class="group-title">SYSTEM</div>
                     <div class="metric-item">
                         <div class="value" id="stat-ip">...</div>
                     </div>
@@ -60,7 +61,39 @@
                 </div>
             </td>
             <td class="cell-metric">
-                <!-- Space for additional modular views -->
+                    <div class="metric-group">
+                        <div class="group-title">PROXMOX</div>
+                        <div class="metric-item">
+                            <div class="value" id="stat-pve-ip">...</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-info">
+                                <div class="label">CPU</div>
+                                <div class="value" id="stat-pve-cpu">...</div>
+                            </div>
+                            <div class="bar">
+                                <div class="bar-fill" id="bar-pve-cpu"></div>
+                            </div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-info">
+                                <div class="label">RAM</div>
+                                <div class="value" id="stat-pve-ram">...</div>
+                            </div>
+                            <div class="bar">
+                                <div class="bar-fill" id="bar-pve-ram"></div>
+                            </div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-info">
+                                <div class="label">DISK</div>
+                                <div class="value" id="stat-pve-disk">...</div>
+                            </div>
+                            <div class="bar">
+                                <div class="bar-fill" id="bar-pve-disk"></div>
+                            </div>
+                        </div>
+                    </div>
             </td>
         </tr>
     </table>
