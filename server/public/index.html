@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=800, height=540, initial-scale=1.0">
+    <title>Homelab Status</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <table class="main-table">
+        <!-- Header Row -->
+        <tr style="height: 100px;">
+            <td colspan="2" class="cell-header">
+                <div class="header-content">
+                    <div class="weather-header">
+                        <span id="stat-temp">...</span> / <span id="stat-cond">...</span>
+                    </div>
+                    <div class="time" id="time">00:00</div>
+                </div>
+            </td>
+        </tr>
+
+        <!-- Metrics Row -->
+        <tr>
+            <td class="cell-metric" style="width: 300px;">
+                <div class="metric-group">
+                    <div class="metric-item">
+                        <div class="value" id="stat-ip">...</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-info">
+                            <div class="label">CPU</div>
+                            <div class="value" id="stat-cpu">...</div>
+                        </div>
+                        <div class="bar">
+                            <div class="bar-fill" id="bar-cpu"></div>
+                        </div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-info">
+                            <div class="label">RAM</div>
+                            <div class="value" id="stat-ram">...</div>
+                        </div>
+                        <div class="bar">
+                            <div class="bar-fill" id="bar-ram"></div>
+                        </div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-info">
+                            <div class="label">DISK</div>
+                            <div class="value" id="stat-disk">...</div>
+                        </div>
+                        <div class="bar">
+                            <div class="bar-fill" id="bar-disk"></div>
+                        </div>
+                    </div>
+                </div>
+            </td>
+            <td class="cell-metric">
+                <!-- Space for additional modular views -->
+            </td>
+        </tr>
+    </table>
+
+    <div id="error-message">SERVER CONNECTION ERROR</div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

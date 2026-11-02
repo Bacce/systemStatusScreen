@@ -114,6 +114,7 @@ app.get('/api/status', async (req, res) => {
     res.json(status);
 });
 
+app.use(express.static(path.join(__dirname, 'public')));
 app.use('/images', express.static(path.join(__dirname, 'images')));
 const fs = require('fs');
 
@@ -134,7 +135,7 @@ app.get('/api/random-image', (req, res) => {
 
 
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.listen(port, () => {
