@@ -13,6 +13,11 @@ let weatherCache = {
     data: null,
     lastUpdate: 0
 };
+let statusCache = {
+    data: null,
+    lastUpdate: 0
+};
+
 
 async function getWeather() {
     const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
@@ -25,11 +30,21 @@ async function getWeather() {
     try {
         const lat = process.env.WEATHER_LAT || '47.690769'; // Default Göd
         const lon = process.env.WEATHER_LON || '19.134569';
-        const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code`);
-        const json = await response.json();
+        const weatherLink = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code`;
+        
+        const response = await fetch(weatherLink);
+        if (!response.ok) {
+            throw new Error(`Weather API responded with status: ${response.status}`);
+        }
 
+        const json = await response.json();
         const current = json.current;
-        const temp = `${Math.round(current.temperature_2m)}°C`;
+
+        if (!current) {
+            throw new Error('Weather API response missing "current" data');
+        }
+
+        const temp = current.temperature_2m !== null ? `${Math.round(current.temperature_2m)}°C` : '--';
         const code = current.weather_code;
 
         const conditionMap = {
@@ -52,8 +67,16 @@ async function getWeather() {
 
         return weatherCache.data;
     } catch (error) {
-        console.error("Error fetching weather:", error);
-        return weatherCache.data || { temperature: 'N/A', condition: 'Error' };
+        console.error("Error fetching weather:", error.message);
+        
+        if (weatherCache.data) {
+            return weatherCache.data;
+        }
+
+        return { 
+            temperature: process.env.WEATHER_FALLBACK_TEMP || '--', 
+            condition: process.env.WEATHER_FALLBACK_COND || 'Unavailable' 
+        };
     }
 }
 
@@ -140,11 +163,18 @@ async function getStatus() {
     const DAY_INTERVAL = 60000;
     const NIGHT_INTERVAL = 1800000;
 
+    const now = Date.now();
+    const hour = new Date().getHours();
+    const currentInterval = (hour >= 22 || hour < 6) ? NIGHT_INTERVAL : DAY_INTERVAL;
+
+    if (statusCache.data && (now - statusCache.lastUpdate < currentInterval)) {
+        return statusCache.data;
+    }
+
     try {
         const timeData = await si.time();
         const date = new Date(timeData.current);
-        const hour = date.getHours();
-        const updateInterval = (hour >= 22 || hour < 6) ? NIGHT_INTERVAL : DAY_INTERVAL;
+        const updateInterval = currentInterval;
 
         const network = await si.networkInterfaces();
         const ip = network.find(iface => iface.ip4 && iface.ip4 !== '127.0.0.1')?.ip4 || '0.0.0.0';
@@ -168,7 +198,7 @@ async function getStatus() {
 
         const weather = await getWeather();
         const pve = await getProxmoxStatus();
-        return {
+        const status = {
             time: date.toLocaleTimeString('en-GB'),
             ip,
             cpu,
@@ -188,6 +218,12 @@ async function getStatus() {
             pveDisk: pve.disk,
             pveDiskPercent: pve.diskPercent,
         };
+
+        statusCache = {
+            data: status,
+            lastUpdate: now
+        };
+        return status;
     } catch (error) {
         console.error("Error fetching system status:", error);
         return {
