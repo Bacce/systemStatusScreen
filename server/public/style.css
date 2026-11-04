@@ -26,30 +26,31 @@ body {
 }
 
 .header-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 4px solid #000;
+    overflow: hidden;
     width: 100%;
+    border-bottom: 4px solid #000;
     padding-bottom: 5px;
 }
 
 .weather-header {
+    float: left;
     font-family: "Courier New", monospace;
     font-size: 28px;
     font-weight: 700;
     line-height: 70px;
-    text-align: center;
+    text-align: left;
 }
 #stat-temp {
-    font-size: 36px;
+    font-size: 54px;
 }
 
 .time {
+    float: right;
     font-size: 54px;
     font-weight: 700;
     letter-spacing: 2px;
     line-height: 70px;
+    text-align: right;
 }
 
 /* Metrics cells */
